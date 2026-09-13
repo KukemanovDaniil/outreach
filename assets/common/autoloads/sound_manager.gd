@@ -27,11 +27,9 @@ var sfx_bus_idx: int
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	
-	# Автоматически находим системные шины по их именам
 	music_bus_idx = AudioServer.get_bus_index(&"Music")
 	sfx_bus_idx = AudioServer.get_bus_index(&"SFX")
 	
-	# Если шины с такими именами не созданы в аудио-микшере, создаем их программно
 	if music_bus_idx == -1:
 		AudioServer.add_bus()
 		music_bus_idx = AudioServer.get_bus_count() - 1
@@ -61,7 +59,6 @@ func _ready() -> void:
 		add_child(p3d)
 		sfx_pool_3d.append(p3d)
 
-# Мгновенно меняет громкость на глобальной аудио-шине без прерывания трека
 func sync_music_volume() -> void:
 	var vol = float(GlobalValues.music_volume)
 	var target_db = -80.0 if vol <= 0.0 else linear_to_db(vol)
@@ -70,7 +67,6 @@ func sync_music_volume() -> void:
 func play_2d(sound_name: String, volume: float = 0.0) -> void:
 	if not sounds.has(sound_name): return
 	
-	# Синхронизируем общую громкость эффектов через глобальную шину SFX
 	var sfx_vol = float(GlobalValues.sfx_volume)
 	var target_sfx_db = -80.0 if sfx_vol <= 0.0 else linear_to_db(sfx_vol)
 	AudioServer.set_bus_volume_db(sfx_bus_idx, target_sfx_db)
@@ -78,14 +74,13 @@ func play_2d(sound_name: String, volume: float = 0.0) -> void:
 	for p in sfx_pool:
 		if not p.playing:
 			p.stream = sounds[sound_name]
-			p.volume_db = volume # Локальное смещение громкости конкретного звука
+			p.volume_db = volume
 			p.play()
 			return
 
 func play_3d(sound_name: String, position: Vector3, volume: float = 0.0) -> void:
 	if not sounds.has(sound_name): return
 	
-	# Синхронизируем общую громкость эффектов через глобальную шину SFX
 	var sfx_vol = float(GlobalValues.sfx_volume)
 	var target_sfx_db = -80.0 if sfx_vol <= 0.0 else linear_to_db(sfx_vol)
 	AudioServer.set_bus_volume_db(sfx_bus_idx, target_sfx_db)
@@ -94,7 +89,7 @@ func play_3d(sound_name: String, position: Vector3, volume: float = 0.0) -> void
 		if not p.playing:
 			p.global_position = position
 			p.stream = sounds[sound_name]
-			p.volume_db = volume # Локальное смещение громкости конкретного звука
+			p.volume_db = volume
 			p.play()
 			return
 
@@ -120,8 +115,6 @@ func play_specific_music(track: AudioStream):
 	var track_name = file_path.get_file().get_basename().replace("_", " ")
 	TextAnim.spawn_top_text(self, "now playing: " + track_name)
 
-# Твин управляет только внутренним затуханием плеера при переключении треков, 
-# не ломая общую громкость из настроек
 func _fade_to_track(new_stream: AudioStream):
 	if current_target_track == new_stream: return
 	current_target_track = new_stream
@@ -134,13 +127,12 @@ func _fade_to_track(new_stream: AudioStream):
 	
 	music_tween.tween_callback(func():
 		music_player.stop()
-		music_player.volume_db = -80.0 # Плеер стартует с полной тишины относительно шины
+		music_player.volume_db = -80.0
 		music_player.stream = current_target_track
 		if current_target_track:
 			music_player.play()
 	)
 	
-	# Выводим плеер на 0.0 dB (исходный уровень трека, регулируемый аудио-автобусом)
 	music_tween.tween_property(music_player, "volume_db", 0.0, 0.4)
 
 func _on_music_finished():
