@@ -17,17 +17,14 @@ var _vt: RefCounted
 var _cursor : MeshInstance3D = null
 
 func _ready() -> void:
-	# Инициализация курсора (сетки) как в оригинальном коде
 	var mesh := Util.create_wirecube_mesh(Color(0.0, 0.0, 0.0, 1.0))
 	var mesh_instance := MeshInstance3D.new()
 	mesh_instance.mesh = mesh
 	mesh_instance.set_scale(Vector3(1,1,1)*1.01)
 	_cursor = mesh_instance
 	
-	# Добавляем курсор в сцену
 	get_parent().add_child.call_deferred(_cursor)
 	
-	# Спавн игрока
 	if GlobalValues.world_type == "debug_world":
 		global_position = Vector3(0, 5, 0)
 	else:
@@ -47,7 +44,6 @@ func _ready() -> void:
 		_vt = terrain.get_voxel_tool()
 		_vt.channel = VoxelBuffer.CHANNEL_TYPE
 
-# Функция получения блока с явным указанием типа, чтобы не было ошибки infer type
 func _get_pointed_voxel() -> VoxelRaycastResult:
 	if _vt == null: 
 		return null
@@ -96,7 +92,6 @@ func _modify_voxel(is_mining: bool) -> void:
 		_vt.set_voxel(hit.previous_position, b_id)
 
 func _process(delta: float) -> void:
-	# Отображение курсора (сетки)
 	if _vt and _cursor:
 		var hit := _get_pointed_voxel()
 		if hit != null:
@@ -108,21 +103,18 @@ func _process(delta: float) -> void:
 	if Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:
 		return
 
-	# 1. Поворот
 	fov = GlobalValues.fov
 	var rot_multi := deg_to_rad(sensitivity * (fov / GlobalValues.max_fov))
 	rotation.y -= _mouse_input.x * rot_multi
 	rotation.x = clamp(rotation.x - _mouse_input.y * rot_multi, -1.5, 1.5)
 	_mouse_input = Vector2.ZERO
 
-	# 2. Расчет направлений
 	var input_dir := Input.get_vector("a", "d", "w", "s")
 	var forward := Vector3(global_transform.basis.z.x, 0, global_transform.basis.z.z).normalized()
 	var right := Vector3(global_transform.basis.x.x, 0, global_transform.basis.x.z).normalized()
 	var vertical := Input.get_axis("shift", "space")
 	var move_dir := (forward * input_dir.y + right * input_dir.x + Vector3.UP * vertical).normalized()
 	
-	# 3. Движение
 	var target_vel := move_dir * speed
 	var weight := acceleration if move_dir.length() > 0 else friction
 	_velocity = _velocity.lerp(target_vel, weight * delta)
