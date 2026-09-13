@@ -11,7 +11,6 @@ func _ready() -> void:
 func create() -> void:  
 	refresh_world()
 
-# Вспомогательная функция для очистки игровых нод в меню
 func _clear_world_nodes():
 	for n in ["clouds", "PostProcessing"]:
 		var node = get_node_or_null(n)
@@ -26,8 +25,6 @@ func refresh_world() -> void:
 func _setup_post_processing() -> void:
 	var pp_instance = get_node_or_null("PostProcessing")
 	
-	# Допустим, в GlobalValues у тебя есть переменная dither_enabled
-	# Если такой нет, можно просто проверять GlobalValues.environment
 	if not GlobalValues.post_processing: 
 		if pp_instance: pp_instance.queue_free()
 		return
@@ -54,7 +51,6 @@ func _setup_clouds() -> void:
 		scene_path = get_tree().current_scene.scene_file_path
 	
 	if scene_path.ends_with("game.tscn"):
-	# Ищем существующий, чтобы не плодить 2000 объектов
 		var clouds_instance = get_node_or_null("clouds")
 	
 		if not GlobalValues.clouds:
