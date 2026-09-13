@@ -2,32 +2,25 @@ extends RefCounted
 
 const Structure = preload("./structure.gd")
 
-# Параметры для настройки "красоты"
 var trunk_len_min := 8
 var trunk_len_max := 16
 var log_type := 1
 var leaves_type := 2
 var channel := 0 
 
-# Объект рандома, который будет зависеть от сида
 var _rng := RandomNumberGenerator.new()
 
-# Функция генерации теперь принимает порядковый номер варианта дерева
 func generate(variant_index: int) -> Object:
-	# Устанавливаем сид на основе глобального tree_seed и индекса варианта
 	_rng.seed = GlobalValues.tree_seed + variant_index
 	
 	var voxels := {}
 	
-	# 1. Параметры дерева (используем _rng вместо глобального rand)
 	var trunk_len := _rng.randi_range(trunk_len_min, trunk_len_max)
 	var branch_start_y := int(trunk_len * 0.3)
 	
-	# 2. Ствол
 	for y in trunk_len:
 		voxels[Vector3i(0, y, 0)] = log_type
 	
-	# 3. Ветки и лиственные шапки
 	var num_branches := int(trunk_len * 0.8)
 	for i in num_branches:
 		var y = _rng.randi_range(branch_start_y, trunk_len - 1)
@@ -42,22 +35,18 @@ func generate(variant_index: int) -> Object:
 		var pos := Vector3(0, y, 0)
 		var last_ipos := Vector3i(0, y, 0)
 		
-		# Растим ветку
 		for step in branch_len:
 			pos += dir
 			last_ipos = Vector3i(pos.round())
 			voxels[last_ipos] = log_type
 		
-		# 4. Генерируем "облако" листьев на конце каждой ветки
 		var leaf_radius = _rng.randf_range(2.0, 3.5)
 		_draw_leaf_sphere(voxels, last_ipos, leaf_radius)
 
-	# Добавим пышную шапку на саму макушку
 	_draw_leaf_sphere(voxels, Vector3i(0, trunk_len, 0), 3.0)
 
 	return _build_structure(voxels)
 
-# Вспомогательная функция для создания сфер листвы
 func _draw_leaf_sphere(voxels: Dictionary, center: Vector3i, radius: float):
 	var r_sq = radius * radius
 	var r_int = int(radius) + 1
@@ -66,7 +55,6 @@ func _draw_leaf_sphere(voxels: Dictionary, center: Vector3i, radius: float):
 		for dy in range(-r_int, r_int + 1):
 			for dz in range(-r_int, r_int + 1):
 				var dist_sq = dx*dx + dy*dy + dz*dz
-				# Используем детерминированный рандом для формы сферы
 				if dist_sq <= r_sq * (0.8 + _rng.randf() * 0.4):
 					var p = center + Vector3i(dx, dy, dz)
 					if not voxels.has(p):
