@@ -29,9 +29,9 @@ The project offers an infinite, procedurally generated world with no boundaries 
 3. Import the project into Godot 4.6.
 
 ## Credits
-* **Daniil Kykemanov:** Project Lead, Lead Programmer, Composer, Sound Design.
+* **Kukemanov Daniil:** Project Lead, Lead Programmer, Composer, Sound Design.
 * **cc19:** Lead Sprite Artist.
-* **Daniil Kykemanov:** Additional Art & Sprites.
+* **Kukemanov Daniil:** Additional Art & Sprites.
 
 ### Special Thanks
 * **cc19** — For significant contributions to the project's visual direction and development.
