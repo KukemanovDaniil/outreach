@@ -61,20 +61,13 @@ func _handle_grass_tick(pos: Vector3i):
 		_voxel_tool.set_voxel(pos, Block.DIRT)
 		return
 
-	# 2. Распространение: перебираем ВСЕ 26 направлений за один раз
-	# Это заставит траву расти агрессивно
 	for offset in _grass_neighbors:
 		var neighbor_pos = pos + offset
 		
-		# Если нашли землю
 		if _voxel_tool.get_voxel(neighbor_pos) == Block.DIRT:
-			# Проверяем, не накрыта ли эта земля чем-то
 			var neighbor_above = _voxel_tool.get_voxel(neighbor_pos + Vector3i.UP)
 			if not _is_block_opaque(neighbor_above):
 				_voxel_tool.set_voxel(neighbor_pos, Block.GRASS)
-				# Если хочешь, чтобы за один тик вырастала только ОДНА травинка, 
-				# добавь тут 'break', но для максимальной скорости — убери его.
-
 
 
 func _is_block_opaque(block_id: int) -> bool:
