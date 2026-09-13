@@ -68,9 +68,9 @@ func _init() -> void:
 	_tree_noise.fractal_gain = 0.39 	 	
 	
 	_cave_noise.noise_type = FastNoiseLite.TYPE_PERLIN
-	_cave_noise.frequency = 0.02          # Делает пещеры крупнее (меньше значение — больше масштаб)
+	_cave_noise.frequency = 0.02
 	_cave_noise.fractal_type = FastNoiseLite.FRACTAL_FBM
-	_cave_noise.fractal_octaves = 3       # Меньше октав — более гладкие стены (лучше для FPS)
+	_cave_noise.fractal_octaves = 3
 	_cave_noise.fractal_lacunarity = 2.0
 	_cave_noise.fractal_gain = 0.5
 	
@@ -93,7 +93,6 @@ func _generate_block(buffer: VoxelBuffer, origin_in_voxels: Vector3i, _unused_lo
 	if origin_in_voxels.y > _heightmap_max_y: 		
 		buffer.fill(AIR, _CHANNEL) 	
 	elif origin_in_voxels.y + block_size < _heightmap_min_y:
-		# Оставляем проверку пещер даже глубоко под землей
 		for z in block_size:
 			for x in block_size:
 				for y in block_size:
@@ -117,12 +116,10 @@ func _generate_block(buffer: VoxelBuffer, origin_in_voxels: Vector3i, _unused_lo
 				
 				for y in block_size:
 					var gy = oy + y
-					# Проверка на пещеру для каждого вокселя
 					if _cave_noise.get_noise_3d(gx, gy, gz) > 0.3:
 						buffer.set_voxel(AIR, x, y, z, _CHANNEL)
 						continue
 					
-					# Основная почва
 					if gy < height - 1 - dirt_depth:
 						buffer.set_voxel(STONE, x, y, z, _CHANNEL)
 					elif gy < height - 1:
@@ -132,7 +129,6 @@ func _generate_block(buffer: VoxelBuffer, origin_in_voxels: Vector3i, _unused_lo
 							buffer.set_voxel(GRASS, x, y, z, _CHANNEL)
 						else:
 							buffer.set_voxel(STONE, x, y, z, _CHANNEL)
-					# Декорации: ставим только если под нами GRASS и здесь не пещера
 					elif gy == height:
 						if height >= 0 and column_rng.randf() < 0.2:
 							var foliage = SHORT_GRASS 							
@@ -145,7 +141,6 @@ func _generate_block(buffer: VoxelBuffer, origin_in_voxels: Vector3i, _unused_lo
 				gx += 1 			
 			gz += 1  	
 
-	# Деревья 	
 	if origin_in_voxels.y <= _trees_max_y and origin_in_voxels.y + block_size >= _trees_min_y: 		
 		var voxel_tool := buffer.get_voxel_tool() 		
 		var structure_instances := []  		
@@ -176,7 +171,6 @@ func _get_tree_instances_in_chunk(cpos: Vector3i, offset: Vector3i, chunk_size: 
 		
 		if noise_val > 0.1: 			
 			var gy = _get_height_at(gx, gz) 			
-			# Проверка: дерево спавнится только если точка основания не внутри пещеры
 			if gy > 0 and _cave_noise.get_noise_3d(gx, gy, gz) <= 0.3: 				
 				tree_instances.append([ 				
 					Vector3i(gx, gy, gz) - offset,  				
