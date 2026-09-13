@@ -7,7 +7,6 @@ var block_atlas := preload("res://assets/textures/block_atlas.png")
 @onready var grid_cont : Node = get_tree().get_first_node_in_group("grid_cont")
 @onready var options : Node = get_tree().get_first_node_in_group("options")
 
-# Твой словарь полностью восстановлен
 var blocks : Dictionary = {
 	"grass": {"id": 1, "atlas_pos": Vector2i(1, 0), "category": "nature"},
 	"dirt": {"id": 2, "atlas_pos": Vector2i(0, 0), "category": "nature"},
