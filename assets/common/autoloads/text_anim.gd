@@ -19,7 +19,6 @@ func spawn_floating_text(target: Node, message: String) -> void:
 	l.label_settings = settings
 	canvas.add_child(l)
 	
-	# Центрирование относительно объекта и смещение вверх
 	var pos = target.get_global_mouse_position() - (l.get_combined_minimum_size() / 2)
 	l.global_position = pos
 	
@@ -29,7 +28,6 @@ func spawn_floating_text(target: Node, message: String) -> void:
 	tw.finished.connect(l.queue_free)
 
 func spawn_top_text(_target: Node, message: String) -> void:
-	# 1. Удаляем все старые сообщения в этом слое
 	for child in canvas.get_children():
 		child.queue_free()
 	
@@ -38,16 +36,14 @@ func spawn_top_text(_target: Node, message: String) -> void:
 	l.label_settings = settings
 	canvas.add_child(l)
 	
-	# Центрирование
 	var screen_size = get_viewport().get_visible_rect().size
 	var text_size = l.get_combined_minimum_size()
 	l.global_position = Vector2((screen_size.x - text_size.x) / 2, 30)
 	
-	# 2. Анимация появления и исчезновения
 	l.modulate.a = 0
 	var tw := l.create_tween()
-	tw.tween_property(l, "modulate:a", 1.0, 0.3) # Быстрое появление
-	tw.tween_interval(duration * 3)              # Удержание текста
-	tw.tween_property(l, "modulate:a", 0.0, 1.0) # Плавное затухание
+	tw.tween_property(l, "modulate:a", 1.0, 0.3)
+	tw.tween_interval(duration * 3)а
+	tw.tween_property(l, "modulate:a", 0.0, 1.0)
 	
 	tw.finished.connect(l.queue_free)
